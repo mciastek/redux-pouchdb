@@ -60,7 +60,7 @@ export const persistentStore = (db, onChange = []) => storeCreator => (reducer, 
   return store;
 };
 
-export const persistentReducer = (reducer, name) => {
+export const persistentReducer = (reducer, name, actionsNamespace = '') => {
   let lastState;
   name = name || reducer.name;
 
@@ -78,7 +78,7 @@ export const persistentReducer = (reducer, name) => {
     }
 
     const reducedState = reducer(state, action);
-    if (isInitialized && !equal(reducedState,lastState)) {
+    if (isInitialized && !equal(reducedState,lastState) && action.type.indexOf(actionsNamespace) !== -1) {
       lastState = reducedState;
       saveReducer(name, reducedState);
     }

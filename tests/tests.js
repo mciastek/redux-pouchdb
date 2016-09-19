@@ -12,6 +12,7 @@ const db = new PouchDB('app');
 
 const INCREMENT = 'INCREMENT';
 const DECREMENT = 'DECREMENT';
+const NAMESPACE_INCREMENT = 'namespaced/INCREMENT';
 
 const createPersistentStore = compose(persistentStore(db))(createStore);
 
@@ -22,6 +23,8 @@ const reducer = (state = {x: 0}, action) => {
     return { x: state.x + 1 };
   case DECREMENT:
     return { x: state.x - 1 };
+  case NAMESPACE_INCREMENT:
+    return { x: state.x + 1 };
   default:
     return state;
   }
@@ -54,4 +57,25 @@ test('should persist store state', function (t) {
       console.log('testing moar',store.getState().x, doc.state.x);
       t.equal(store.getState().x, doc.state.x);
     });
+});
+
+test('should update persisten store using namespaced actions', function(t) {
+  t.plan(1);
+
+  const namespacedReducer = persistentReducer(reducer, reducer.name, 'namespaced');
+  let store = createPersistentStore(namespacedReducer);
+
+  timeout(1000)
+  .then(() => {
+    console.log('incrementing by namespaced action');
+    store.dispatch({
+      type: NAMESPACE_INCREMENT
+    });
+
+    return timeout(1000);
+  })
+  .then(() => load(db)(reducer.name))
+  .then(doc => {
+    t.equal(store.getState().x, doc.state.x);
+  });
 });

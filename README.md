@@ -66,10 +66,19 @@ const counter = (state = {count: 0}, action) => {
 export default persistentReducer(counter);
 ```
 
-NOTE: If you plan on minifying your code, or you want to use a name different from the reducer function name, you can pass a second parameter to `persistentReducer`.
+If you plan on minifying your code, or you want to use a name different from the reducer function name, you can pass a second parameter to `persistentReducer`.
 
 ```js
 export default persistentReducer(counter, 'counter');
+```
+
+NOTE: To make `persistentReducer` work with async reducers pattern, you can add third parameter to it. That parameter will specify what
+actions with proper namespace will be allowed to update persistent store. By default it will disable saving initial state to database,
+so after loading async reducer database shouldn't be overwritten.
+
+```js
+// for actions with namespace 'app/DEFAULT_ACTION'
+export default persistentReducer(counter, 'counter', 'app');
 ```
 
 ## Caveat
